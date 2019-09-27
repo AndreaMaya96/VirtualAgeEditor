@@ -1,0 +1,14 @@
+﻿<Properties StartupConfiguration="{7083BB9A-BAFA-0176-B4ED-02D1249C1B6E}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/VideoEditor.cs">
+    <Files>
+      <File FileName="Assets/Scripts/VideoEditor.cs" Line="69" Column="56" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
