@@ -69,6 +69,16 @@ public class VideoEditor : MonoBehaviour {
             text.transform.localPosition = new Vector3(timing[i].transform.localPosition.x + Xpos, 0, 0);
             text.transform.localPosition = new Vector3(text.transform.localPosition.x, 0, 0);
             Temptiming.Add(text);
+            GameObject line = new GameObject("line");
+            line.AddComponent<Image>();
+            line.AddComponent<RectTransform>();
+            line.GetComponent<Image>().color = Color.white;
+            line.GetComponent<RectTransform>().sizeDelta = new Vector2(6, 500);
+            line.transform.SetParent(text.transform);
+            line.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1);
+            line.transform.localPosition = new Vector3(0, -100, 0);
+            line.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 1);
+            line.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 1);
         }
 
 
@@ -117,6 +127,17 @@ public class VideoEditor : MonoBehaviour {
             text.transform.SetParent(numbers.transform);
             text.transform.localPosition = new Vector3(text.transform.localPosition.x, 0, 0);
             timing.Add(text); //añadimos el objeto a la lista global
+            GameObject line = new GameObject("line");
+            line.AddComponent<Image>();
+            line.AddComponent<RectTransform>();
+            line.GetComponent<Image>().color = Color.red;
+            line.GetComponent<RectTransform>().sizeDelta = new Vector2(8, 500);
+            line.transform.SetParent(text.transform);
+            line.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1);
+            line.transform.localPosition = new Vector3(0, -100, 0);
+            line.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 1);
+            line.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 1);
+
 
 
         }
