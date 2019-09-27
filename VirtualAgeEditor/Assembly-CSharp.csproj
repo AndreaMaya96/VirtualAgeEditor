@@ -64,31 +64,31 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\VideoEditor.cs" />
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>/Users/amaya/Games/VirtualAge/VirtualAgeEditor/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>/Users/amaya/Games/VirtualAgeEditor/VirtualAgeEditor/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>/Applications/Unity/Hub/Editor/2019.2.5f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
