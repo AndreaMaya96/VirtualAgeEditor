@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class VideoEditor : MonoBehaviour {
 
@@ -10,33 +11,26 @@ public class VideoEditor : MonoBehaviour {
     public GameObject infoBar;
     public GameObject numbers;
     List<GameObject> timing = new List<GameObject>();
-    List<float> timingValue = new List<float>();
-    List<GameObject> FirstLayer = new List<GameObject>();
-    List<GameObject> SecondLayer = new List<GameObject>();
-    List<GameObject> ThirdLayer = new List<GameObject>();
-    List<GameObject> FourthLayer = new List<GameObject>();
-    List<GameObject> FifthLayer = new List<GameObject>();
-    public Slider slider;
-    float num;
+    List<List<GameObject>> Layers = new List<List<GameObject>>();
+    public float num;
     float pos = 0;
-    float scale = 1;
+    float maxDist;
+    float minDist;
+
+
 
     private void Start() {
-        num = 4;
+
+        maxDist = numbers.GetComponent<RectTransform>().sizeDelta.x / 4; //La distancia maxima que puede haber entre un numero y el siguiente
+        minDist = numbers.GetComponent<RectTransform>().sizeDelta.x / 10; //La distancia minima que puede haber entre un numero y el siguiente
+
         StartingTimeLineNumbers();
     }
 
 
-    private void Update() {
-        ScrollZoom();
-
-
-    }
-
     List<GameObject> TimeLineNumbers() {
 
         //para añadir los numeros al hacer zoom in
-        Debug.Log("d");
 
         List<GameObject> Temptiming = new List<GameObject>(); //lista temporal para almacenar los nuevos numeros
         if (Temptiming != null) {
@@ -47,36 +41,41 @@ public class VideoEditor : MonoBehaviour {
             float numA = float.Parse(timing[i].name); //valor del primer numero a comparar
             float numB = float.Parse(timing[i + 1].name); //valor del segundo numero
 
-            float newNum = ((numB - numA) / 2); // el numero a añadir sera la mitad de los colindantes ej: 120-60/2 = 30
+            float newNum = ((numB - numA) / 2) + numA; // calculamos el valor medio entre los dos numeros
             GameObject text = new GameObject("text");
-            text.name = (numA + newNum).ToString(); //le ponemos como nombre el valor
-            text.AddComponent<Text>();
-            if (numA % 60 == 0) { // si los numeros son minutos enteros, dividimos entre 60 para tener los segundos
-                text.GetComponent<Text>().text = ((numA / 60) + (newNum / 100)).ToString();
-            } else { // si ya son segundos, solo dividimos entre 100 para tener el valor en decimal
-                text.GetComponent<Text>().text = ((numA / 100) + (newNum / 100)).ToString();
-            }
-
-            text.GetComponent<Text>().font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            text.GetComponent<Text>().fontSize = 50;
-            text.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
-
-            text.GetComponent<RectTransform>().anchorMax = new Vector2(0, 0.5f);
-            text.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0.5f);
             text.transform.SetParent(numbers.transform);
 
-            float Xpos = (timing[i + 1].transform.localPosition.x - timing[i].transform.localPosition.x) / 2;
-            text.transform.localPosition = new Vector3(timing[i].transform.localPosition.x + Xpos, 0, 0);
+            text.AddComponent<RectTransform>();
+            text.GetComponent<RectTransform>().sizeDelta = new Vector2(70, numbers.GetComponent<RectTransform>().sizeDelta.y);
+            text.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1);
+            text.name = (newNum).ToString(); //le ponemos como nombre el valor
+            text.AddComponent<Text>();
+            TimeSpan t = TimeSpan.FromSeconds(newNum);
+            text.GetComponent<Text>().text = t.ToString((@"m\:ss")); //Pasamos los segundos a formato m:ss
+
+             
+            text.GetComponent<Text>().font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.GetComponent<Text>().fontSize = 20;
+            text.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
+            
+            text.GetComponent<RectTransform>().anchorMax = new Vector2(0, 0.5f);
+            text.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0.5f);
+
+            float Xpos = (timing[i + 1].transform.localPosition.x - timing[i].transform.localPosition.x) / 2; 
+            text.transform.localPosition = new Vector3(timing[i].transform.localPosition.x + Xpos, 0, 0); //Colocamos el nuevo numero en medio de los dos 
             text.transform.localPosition = new Vector3(text.transform.localPosition.x, 0, 0);
-            Temptiming.Add(text);
-            GameObject line = new GameObject("line");
+            Temptiming.Add(text); //Añadimos el numero a la lista temporal
+            GameObject line = new GameObject("line"); //Creamos la linea
             line.AddComponent<Image>();
-            line.AddComponent<RectTransform>();
-            line.GetComponent<Image>().color = Color.white;
-            line.GetComponent<RectTransform>().sizeDelta = new Vector2(6, 500);
+            Color tempColor;
+            tempColor = Color.white;
+            tempColor.a = 0.5f;
+            line.GetComponent<Image>().color = tempColor;
+            line.GetComponent<RectTransform>().sizeDelta = new Vector2(2, videoEdit.GetComponent<RectTransform>().sizeDelta.y);
+            line.transform.localScale = new Vector3(1, 1, 1);
             line.transform.SetParent(text.transform);
             line.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1);
-            line.transform.localPosition = new Vector3(0, -100, 0);
+            line.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -numbers.GetComponent<RectTransform>().sizeDelta.y);
             line.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 1);
             line.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 1);
         }
@@ -87,6 +86,12 @@ public class VideoEditor : MonoBehaviour {
         }
         timing.Sort((p1, p2) => float.Parse(p1.name).CompareTo(float.Parse(p2.name))); // ordenamos la lista global de numero inferior a superior
 
+        if (Vector2.Distance(timing[1].transform.position, timing[0].transform.position) > maxDist) //Si al crear los nuevos numeros, sigue habiendo mucho espacio entre ellos, volvemos a crear mas
+        {
+            List<GameObject> myList = new List<GameObject>(); //creamos una lista donde almacenar los nuevos numeros
+            myList = TimeLineNumbers();
+            Layers.Add(myList); //Añadimos la lista de estos nuevos numeros a la lista de listas
+        }
         return Temptiming;
     }
 
@@ -94,16 +99,15 @@ public class VideoEditor : MonoBehaviour {
 
     void StartingTimeLineNumbers() {
 
-        //numeros con los que empieza la timeline (5min)
-        float dist = timeline.GetComponent<RectTransform>().sizeDelta.x / num; //distancia a la que tienen que estar los numeros
 
+        float dist = numbers.GetComponent<RectTransform>().sizeDelta.x / num; //distancia a la que tienen que estar los numeros
         for (int i = 0; i < num + 1; i++) {
+            float seconds = i * 60;
             GameObject text = new GameObject("text"); //creamos los numeros
-            text.name = (i * 60).ToString(); // el nombre es el tiempo en segundos
+            text.name = seconds.ToString(); // el nombre es el tiempo en segundos
             text.AddComponent<RectTransform>();
             text.AddComponent<Text>();
-            text.GetComponent<Text>().font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            text.GetComponent<Text>().fontSize = 50;
+
             if (i == 0) { //colocamos los numeros en la posicion que corresponde y movemos el pivot para que el primer y ultimo numero no se salgan de la pantalla
                 text.GetComponent<Text>();
                 text.GetComponent<RectTransform>().pivot = new Vector2(0, 0.5f);
@@ -116,30 +120,39 @@ public class VideoEditor : MonoBehaviour {
                 text.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f);
             }
 
-            float time = i;
-            text.GetComponent<Text>().text = time.ToString() + ".00"; //ponemos el texto
-            text.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
-
+            float time = i * 60;
             text.GetComponent<RectTransform>().anchorMax = new Vector2(0, 0.5f);
             text.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0.5f);
-            text.transform.localPosition = new Vector3(pos, 0, 0);
-
             text.transform.SetParent(numbers.transform);
-            text.transform.localPosition = new Vector3(text.transform.localPosition.x, 0, 0);
+            text.transform.localPosition = new Vector3(pos, 0, 0);
+            text.GetComponent<RectTransform>().sizeDelta = new Vector2(70, numbers.GetComponent<RectTransform>().sizeDelta.y);
+            text.transform.localScale = new Vector3(1, 1, 1);
+
+            TimeSpan t = TimeSpan.FromSeconds(time); 
+            text.GetComponent<Text>().text = t.ToString((@"m\:ss")); text.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; //Pasamos el tiempo de segundos a formato m:ss
+            text.GetComponent<Text>().font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.GetComponent<Text>().fontSize = 20;
+            
             timing.Add(text); //añadimos el objeto a la lista global
-            GameObject line = new GameObject("line");
+            GameObject line = new GameObject("line"); //Creamos la linea vertical 
             line.AddComponent<Image>();
-            line.AddComponent<RectTransform>();
             line.GetComponent<Image>().color = Color.red;
-            line.GetComponent<RectTransform>().sizeDelta = new Vector2(8, 500);
+            line.GetComponent<RectTransform>().sizeDelta = new Vector2(2, videoEdit.GetComponent<RectTransform>().sizeDelta.y);
             line.transform.SetParent(text.transform);
             line.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1);
-            line.transform.localPosition = new Vector3(0, -100, 0);
+            line.transform.localScale = new Vector3(1, 1, 1);
+            line.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -numbers.GetComponent<RectTransform>().sizeDelta.y);
             line.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 1);
             line.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 1);
 
+        }
 
 
+        if (Vector2.Distance(timing[1].transform.position, timing[0].transform.position) > maxDist) //Si al crear los minutos, estan muy separados, creamos más
+        {
+            List<GameObject> myList = new List<GameObject>();
+            myList = TimeLineNumbers();
+            Layers.Add(myList);
         }
     }
 
@@ -147,250 +160,111 @@ public class VideoEditor : MonoBehaviour {
 
     public void ZoomInButton(int num) {
 
-        float value = numbers.transform.localScale.x;
+            if (timing[1].gameObject.GetComponent<Text>().text != "0:01")
+            { //zoom in maximo que podemos hacer
+                numbers.transform.localScale = new Vector3(numbers.transform.localScale.x + num, 1, 1); //Se hace grande el panel donde estan los numeros
+                foreach (GameObject obj in timing)
+                {
+                    obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //Modificamos la escala de los numeros para que no se deforme
 
-        if (value < 15) { //zoom in maximo que podemos hacer
-            numbers.transform.localScale = new Vector3(numbers.transform.localScale.x + num, 1, 1); //Se hace grande el panel donde estan los numeros
-            foreach (GameObject obj in timing) {
-                obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //Modificamos la escala de los numeros para que no se deforme
-            }
-            value = numbers.transform.localScale.x;
-            scale = numbers.transform.localScale.x;
-
-            //Creamos los numeros y los vamos añadiendo a diferentes listas para clasificarlos por capas de detalle
-            if (scale > 1 && scale <= 2f) {
-                Debug.Log("1");
-
-                FirstLayer = TimeLineNumbers();
-                scale = numbers.transform.localScale.x;
-            } else if (scale > 2 && scale <= 3) {
-                Debug.Log("2");
-
-                SecondLayer = TimeLineNumbers();
-                scale = numbers.transform.localScale.x;
-            } else if (scale > 3 && scale <= 4) {
-                Debug.Log("3");
-
-                ThirdLayer = TimeLineNumbers();
-                scale = numbers.transform.localScale.x;
-            } else if (scale > 4 && scale <= 5) {
-                Debug.Log("4");
-
-                FourthLayer = TimeLineNumbers();
-                scale = numbers.transform.localScale.x;
-            } else if (scale > 7 && scale <= 15) {
-                Debug.Log("5");
-                if (FifthLayer.Count == 0) {
-                    FifthLayer = TimeLineNumbers();
-                    scale = numbers.transform.localScale.x;
                 }
-
+                if (Vector2.Distance(timing[1].transform.position, timing[0].transform.position) > maxDist)
+                {
+                    List<GameObject> myList = new List<GameObject>();
+                    myList = TimeLineNumbers();
+                    Layers.Add(myList);
+                }
             }
-
-        }
-
-
-
     }
 
 
     public void ZoomOutButton(int num) {
         float value = numbers.transform.localScale.x;
-
-        if (value > 2) { //zoom out maximo que podemos hacer
-            if (value > 10 && value < 15) {
-                numbers.transform.localScale = new Vector3(10, 1, 1); //Se hace grande el panel donde estan los numeros
-            } else {
-                numbers.transform.localScale = new Vector3(numbers.transform.localScale.x - num, 1, 1); //Se hace grande el panel donde estan los numeros
-            }
-            foreach (GameObject obj in timing) {
-                obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //Modificamos la escala de los numeros para que no se deforme
-            }
-            value = numbers.transform.localScale.x;
-            Debug.Log("Scale: " + scale);
-            //Creamos los numeros y los vamos añadiendo a diferentes listas para clasificarlos por capas de detalle
-            if (scale > 1 && scale <= 2f) {
-                scale = numbers.transform.localScale.x;
-                Debug.Log("1");
-
-                foreach (GameObject t in FirstLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                FirstLayer.Clear();
-            } else if (scale > 2 && scale <= 3) {
-                Debug.Log("2");
-
-                scale = numbers.transform.localScale.x;
-
-                foreach (GameObject t in SecondLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                SecondLayer.Clear();
-            } else if (scale > 3 && scale <= 4) {
-                Debug.Log("3");
-
-                scale = numbers.transform.localScale.x;
-
-                foreach (GameObject t in ThirdLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                ThirdLayer.Clear();
-            } else if (scale > 4 && scale < 7) {
-                Debug.Log("4");
-
-                scale = numbers.transform.localScale.x;
-
-                foreach (GameObject t in FourthLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                FourthLayer.Clear();
-            } else if (scale >= 7 && scale <= 15) {
-                Debug.Log("5");
-
-                scale = numbers.transform.localScale.x;
-
-                foreach (GameObject t in FifthLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                FifthLayer.Clear();
-
+        if (value > 2)
+        { //zoom out maximo que podemos hacer
+            numbers.transform.localScale = new Vector3(numbers.transform.localScale.x - num, 1, 1); //Se hace pequeño el panel donde estan los numeros
+            foreach (GameObject obj in timing)
+            {
+                obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //modificamos la escala de los numeros para que no se deformen
             }
 
-        } else {
-            numbers.transform.localScale = new Vector3(1, 1, 1);
-            foreach (GameObject obj in timing) {
-                obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //Modificamos la escala de los numeros para que no se deforme
-            }
-            if (FirstLayer.Count > 0) {
-                foreach (GameObject t in FirstLayer) {
+
+            if (Vector2.Distance(timing[1].transform.position, timing[0].transform.position) < minDist)
+            {
+
+                foreach (GameObject t in Layers[Layers.Count - 1])
+                {
                     timing.Remove(t);
                     Destroy(t);
                 }
-                FirstLayer.Clear();
+                Layers.RemoveAt(Layers.Count - 1);
             }
+        }
+        else
+        {
+            numbers.transform.localScale = new Vector3(1, 1, 1); //Se hace pequeño el panel donde estan los numeros
+            foreach(GameObject obj in timing)
+            {
+                obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //modificamos la escala de los numeros para que no se deformen
 
+            }
+            if(Vector2.Distance(timing[1].transform.position, timing[0].transform.position) < minDist)
+            {
+
+                foreach (GameObject t in Layers[Layers.Count - 1])
+                {
+                    timing.Remove(t);
+                    Destroy(t);
+                }
+                Layers.RemoveAt(Layers.Count - 1);
+            }
         }
     }
+  
 
-
-    void ScrollZoom() {
+    public void ScrollZoom() {
         float value = numbers.transform.localScale.x;
 
-
-
         //Para crear los numeros con más detalle al hacer zoom in
-
-
-        if (Input.GetAxis("Mouse ScrollWheel") < -0.1f) {
-            if (value < 15) { //zoom in maximo que podemos hacer
+        if (Input.GetAxis("Mouse ScrollWheel") > 0.1f) {
+            if (timing[1].gameObject.GetComponent<Text>().text != "0:01") { //zoom in maximo que podemos hacer
                 numbers.transform.localScale = new Vector3(numbers.transform.localScale.x + 0.1f, 1, 1); //Se hace grande el panel donde estan los numeros
                 foreach (GameObject obj in timing) {
                     obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //Modificamos la escala de los numeros para que no se deforme
-                }
-
-                //Creamos los numeros y los vamos añadiendo a diferentes listas para clasificarlos por capas de detalle
-                if (value > 1 && value < 1.5f) {
-
-                    if (numbers.transform.localScale.x > scale + 0.4f) {
-
-                        FirstLayer = TimeLineNumbers();
-                        scale = numbers.transform.localScale.x;
-                    }
-
-
-                } else if (value > 1.5f && value < 3f) {
-
-                    if (numbers.transform.localScale.x > scale + 1f) {
-                        SecondLayer = TimeLineNumbers();
-                        scale = numbers.transform.localScale.x;
-                    }
-
-
-                } else if (value > 3.1f && value < 4.2f) {
-
-                    if (numbers.transform.localScale.x > scale + 1f) {
-                        ThirdLayer = TimeLineNumbers();
-                        scale = numbers.transform.localScale.x;
-                    }
-
-
-                } else if (value > 4.3f && value < 5.4f) {
-
-                    if (numbers.transform.localScale.x > scale + 1f) {
-                        FourthLayer = TimeLineNumbers();
-                        scale = numbers.transform.localScale.x;
-                    }
-
-                } else if (value > 7f && value < 8f) {
-                    if (FifthLayer.Count == 0) {
-                        FifthLayer = TimeLineNumbers();
-                    }
 
                 }
-
+                if (Vector2.Distance(timing[1].transform.position, timing[0].transform.position) > maxDist)
+                {
+                    List<GameObject> myList = new List<GameObject>();
+                    myList = TimeLineNumbers();
+                    Layers.Add(myList);
+                }
             }
         }
 
-
         //Para eliminar los numeros cuando hacemos zoom out
-
-
-        if (Input.GetAxis("Mouse ScrollWheel") > 0.1f) {
-            if (value > 1) { //zoom out maximo que podemos hacer
+         
+        if (Input.GetAxis("Mouse ScrollWheel") < -0.1f) {
+            if (value > 1)
+            { //zoom out maximo que podemos hacer
                 numbers.transform.localScale = new Vector3(numbers.transform.localScale.x - 0.1f, 1, 1); //Se hace pequeño el panel donde estan los numeros
-                foreach (GameObject obj in timing) {
+                foreach (GameObject obj in timing)
+                {
                     obj.transform.localScale = new Vector3(1 / numbers.transform.localScale.x, 1, 1); //modificamos la escala de los numeros para que no se deformen
+
                 }
-            }
 
-            //Vamos eliminando los numeros por capas de detalle
 
-            if (value > 1f && value < 1.5f) {
-                scale = numbers.transform.localScale.x;
-                foreach (GameObject t in FirstLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
+                if (Vector2.Distance(timing[1].transform.position, timing[0].transform.position) < minDist) //Si los numeros estan demasiado juntos, eliminamos algunos
+                {
+
+                    foreach (GameObject t in Layers[Layers.Count - 1]) //Eliminamos los numeros que haya en la ultima lista de la lista Layers, seran los ultimos que hemos creado
+                    {
+                        timing.Remove(t);
+                        Destroy(t);
+                    }
+                    Layers.RemoveAt(Layers.Count - 1);
                 }
-                FirstLayer.Clear();
-
-            } else if (value > 1.5f && value < 2f) {
-                scale = numbers.transform.localScale.x;
-                foreach (GameObject t in SecondLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                SecondLayer.Clear();
-
-            } else if (value > 3f && value < 4f) {
-                scale = numbers.transform.localScale.x;
-                foreach (GameObject t in ThirdLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                ThirdLayer.Clear();
-
-            } else if (value > 4f && value < 5f) {
-                scale = numbers.transform.localScale.x;
-                foreach (GameObject t in FourthLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                FourthLayer.Clear();
-
-            } else if (value > 7f && value < 8f) {
-                scale = numbers.transform.localScale.x;
-
-                foreach (GameObject t in FifthLayer) {
-                    timing.Remove(t);
-                    Destroy(t);
-                }
-                FifthLayer.Clear();
-
             }
         }
     }
